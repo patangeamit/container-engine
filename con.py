@@ -7,6 +7,8 @@ import subprocess
 CLONE_NEWUTS = 0x04000000
 #flag for mount namespace. from /usr/include/linux/sched.h
 CLONE_NEWNS = 0x00020000
+#flag for network namespace. from /usr/include/linux/sched.h
+CLONE_NEWNET = 0x40000000
 
 # flag for changing propagation mode of existing mount, saying do not share mounts with parent (host)
 MS_PRIVATE = 0x00040000
@@ -26,6 +28,10 @@ def setup_namespace():
     # isolate mounts
     libc.unshare(CLONE_NEWNS)
     libc.mount(None, b"/", None, MS_REC | MS_PRIVATE, None)
+
+    # isolate network
+    libc.unshare(CLONE_NEWNET)
+
     
 def mount():
     ret = libc.mount(b"proc", b"/proc", b"proc", 0, None)
