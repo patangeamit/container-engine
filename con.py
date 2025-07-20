@@ -26,10 +26,12 @@ def setup_namespace():
 
     # set hostname
     # os.sethostname(b"isolated")
+    name = b"container"
+    libc.sethostname(name, len(name))
     os.chroot("./rootfs")
     os.chdir("/");
 
 
-p = subprocess.Popen(["/bin/sh", "-c", "hostname container && exec sh"], preexec_fn=setup_namespace)
+p = subprocess.Popen(["/bin/sh"], preexec_fn=setup_namespace)
 p.wait()
 
