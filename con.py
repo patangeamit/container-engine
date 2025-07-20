@@ -17,12 +17,19 @@ MS_REC = 0x00004000
 libc = ctypes.CDLL("libc.so.6", use_errno=True)
 
 def setup_namespace():
+
+    # isolate hostname
     libc.unshare(CLONE_NEWUTS)
     name = b"container"
     libc.sethostname(name, len(name))
+    
+    # isolate mounts
     libc.unshare(CLONE_NEWNS)
     libc.mount(None, b"/", None, MS_REC | MS_PRIVATE, None)
-
+    
+def mount():
+    ret = libc.mount(b"proc", b"/proc", b"proc", 0, None)
+    
 def setup_chroot():
     os.chroot("./rootfs")
     os.chdir("/")
@@ -31,6 +38,7 @@ def setup():
     try:
         setup_namespace()
         setup_chroot()
+        mount()
     except Exception as e:
         print(e)
     
