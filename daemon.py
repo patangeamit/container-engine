@@ -10,19 +10,14 @@ def create_bundle(name, args):
     os.makedirs(bundle_path, exist_ok=True)
     rootfs_path = "rootfs"
     config = {
-        "hostname" : "container",
-        "mounts": [
-            {
-                "destination": "/proc",
-                "type": "proc",
-                "source": "proc"
-		    }
-        ],
-        "root": {"path":rootfs_path},
-        "process": {
-            "args": args
+        "hostname": "container",
+        "mounts": [{"destination": "/proc", "type": "proc", "source": "proc"}],
+        "root": {"path": rootfs_path},
+        "process": {"args": args},
+        "linux": {
+            "resources": {"pids": {"limit": 5}},
         },
-        
+        "name": name
     }
     with open(os.path.join(bundle_path, "config.json"), "w") as f:
         json.dump(config, f, indent=2)

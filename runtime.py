@@ -19,7 +19,14 @@ def setup_namespace(hostname):
     libc.sethostname(hostname.encode(), len(hostname))
     libc.mount(None, b"/", None, MS_REC | MS_PRIVATE, None)
 
-def child(rootfs, mounts, args):
+def child(rootfs, mounts, args, pids_limit):
+    # Setup c-group configs
+    c_group = "/sys/fs/cgroup/c-eng/"+container_name 
+    os.makedirs(c_group, exist_ok=True)
+    with open(c_group+"/cgroup.procs", "a") as f:
+        f.write(str(os.getpid()))
+    with open(c_group+"/pids.max", "a") as f:
+        f.write(str(pids_limit))
     os.chroot(rootfs)
     os.chdir("/")
     os.makedirs("proc", exist_ok=True)
@@ -36,13 +43,15 @@ if __name__ == "__main__":
     with open(os.path.join(bundle, "config.json")) as f:
         spec = json.load(f)
 
+    container_name = spec["name"]
     hostname = spec["hostname"]
     rootfs = spec["root"]["path"]
     args = spec["process"]["args"]
     mounts = spec["mounts"]
+    pids_limit = spec["linux"]["resources"]["pids"]["limit"]
     setup_namespace(hostname)
     pid = os.fork()
     if pid == 0: # child. fork returns 0 in the child process
-        child(rootfs, mounts, args)
+        child(rootfs, mounts, args, pids_limit)
     else: # parent 
         os.waitpid(pid, 0)
