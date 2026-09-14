@@ -1,0 +1,12 @@
+name: amit
+namespaces:
+  hostname: true
+  ipc: true
+  user: false
+  mount: true
+  network: true
+  process: false
+  cgroup: true
+  time: true
+entryPoint: 
+  - "/bin/sh"

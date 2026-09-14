@@ -9,7 +9,7 @@ import (
 
 func main() {
 	if len(os.Args) > 1 && os.Args[1] == "--child" {
-		containerRuntime.Child()
+		containerRuntime.Child(os.Args[2:])
 		return
 	}
 	cli.Cli(os.Args)

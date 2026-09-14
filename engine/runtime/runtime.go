@@ -4,29 +4,19 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"runtime"
-
-	"golang.org/x/sys/unix"
+	goRuntime "runtime"
 )
 
-func Child() {
-	fmt.Println("Contianer initialized")
-	Must(unix.Unshare(unix.CLONE_NEWNET | unix.CLONE_NEWUTS))
-	cmd := exec.Command("/bin/sh")
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	cmd.Stdin = os.Stdin
-	Must(cmd.Run())
-	fmt.Println("Container terminated")
-}
-
 func Run() {
-	if runtime.GOOS != "linux" {
-		fmt.Printf("OS (%v) not supported for containers. Exiting.\n", runtime.GOOS)
+	if goRuntime.GOOS != "linux" {
+		fmt.Printf("OS (%v) not supported for containers. Exiting.\n", goRuntime.GOOS)
 		return
 	}
 	fmt.Println("Running a container")
-	cmd := exec.Command("/proc/self/exe", "--child")
+	cmd := exec.Command(
+		"/proc/self/exe",
+		append([]string{"--child"}, os.Args[1:]...)...,
+	)
 	cmd.Stdout = os.Stdout
 	cmd.Stdin = os.Stdin
 	cmd.Stderr = os.Stderr
@@ -36,5 +26,13 @@ func Run() {
 func Must(err error) {
 	if err != nil {
 		panic(err)
+	}
+}
+
+func MustRet(out any, err error) any {
+	if err != nil {
+		panic(err)
+	} else {
+		return out
 	}
 }
