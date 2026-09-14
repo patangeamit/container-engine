@@ -9,4 +9,5 @@ namespaces:
   cgroup: true
   time: true
 entryPoint: 
-  - "/bin/sh"
+  - "sleep"
+  - "5"

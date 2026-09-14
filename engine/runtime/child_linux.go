@@ -32,7 +32,7 @@ func Child(args []string) {
 		unix.Sethostname([]byte(config.Name))
 	}
 
-	cmd := exec.Command("/bin/sh")
+	cmd := exec.Command(config.EntryPoint[0], config.EntryPoint[1:]...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.Stdin = os.Stdin
